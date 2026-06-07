@@ -17,6 +17,7 @@ This file tracks all the steps, CLI prompts, database setups, and changes made d
 | **Phase 7** | Deployment & Final Polish | ✅ Completed |
 | **Phase 8** | Migration to Frontend/Backend | ✅ Completed |
 | **Phase 11**| Google OAuth, Email Confirmations & Workspace Startup | ✅ Completed |
+| **Phase 12**| Testing, Bug Fixes (Node.js WebSocket, Supabase Error Handling) | ✅ Completed |
 
 ---
 
@@ -113,3 +114,60 @@ This file tracks all the steps, CLI prompts, database setups, and changes made d
 * **Step 11.4**: Configured the backend redirect settings with the `FRONTEND_URL` environment parameter (falling back to localhost) in both the Google OAuth callback and sign-up email confirmation redirects.
 * **Step 11.5**: Created a root-level `package.json` with workspace commands (`npm run setup`, `npm run dev` with `concurrently`, and sequential `npm test`) so that the user can configure, start, and test the entire project with single workspace commands.
 * **Step 11.6**: Verified that all backend and frontend test suites pass successfully.
+
+---
+
+### Phase 12: Testing, Bug Fixes & Documentation (Current Session)
+
+**Goal**: Test all live functionality (UI, Google OAuth, Auth Service), fix any discovered bugs, and keep context documentation current.
+
+#### Bugs Found & Fixed
+
+##### Bug 1: Node.js 20 WebSocket Crash — Google OAuth Broken
+* **Symptom**: `GET /api/auth/google` returned `{"error":"Something went wrong on the server."}` (500).
+* **Root Cause**: Node.js 20 does not have native `WebSocket` support (added in Node.js 22+). Supabase's `RealtimeClient` attempted to use `globalThis.WebSocket` and threw: `Error: Node.js 20 detected without native WebSocket support`.
+* **Fix** ([`backend/config/db.js`](file:///C:/Users/chouh/OneDrive/Desktop/EAGER_MINDS/backend/config/db.js)):
+  - Installed the `ws` npm package: `npm install ws --prefix backend`
+  - Added `const ws = require('ws')` and passed `realtime: { transport: ws }` in the Supabase client options.
+* **Result**: `GET /api/auth/google` now returns a valid Supabase OAuth redirect URL ✅
+
+##### Bug 2: Supabase AuthApiError Not Handled — Login/Signup Return 500
+* **Symptom**: Logging in with wrong credentials returned `{"error":"Something went wrong on the server."}` (500) instead of a user-friendly `401` message.
+* **Root Cause**: Supabase's `AuthApiError` objects (thrown from `supabase.auth.signInWithPassword`, etc.) don't have an `isOperational` property. The centralized Express error handler only forwarded errors with `isOperational = true`; all others fell to the generic 500 handler.
+* **Fix #1** ([`backend/services/authService.js`](file:///C:/Users/chouh/OneDrive/Desktop/EAGER_MINDS/backend/services/authService.js)):
+  - Changed all `if (error) throw error` calls in `signup`, `login`, and `getGoogleOAuthUrl` to use `throw new AppError(error.message, statusCode)` — wrapping the Supabase error in our own operational `AppError`.
+  - Made the welcome email call non-blocking (wrapped in `.catch()`) so that a Resend failure doesn't prevent successful signups.
+* **Fix #2** ([`backend/app.js`](file:///C:/Users/chouh/OneDrive/Desktop/EAGER_MINDS/backend/app.js)):
+  - Added a secondary guard in the error handler: if `err.status` is a number (Supabase's own error format), respond with that status code and message.
+  - Improved error logging to use `[Unhandled Error]` prefix.
+* **Result**: Invalid login now returns `{"error":"Invalid login credentials"}` with HTTP 401 ✅
+
+##### Bug 3: Frontend Vite Cache Lock — Dev Server EPERM Error
+* **Symptom**: `npm run dev:frontend` crashed with `EPERM: operation not permitted, rmdir ...frontend/node_modules/.vite/deps`.
+* **Root Cause**: Stale Vite cache directory from a previous session was still locked by the OS.
+* **Fix**: Deleted the cache folder: `Remove-Item -Recurse -Force frontend/node_modules/.vite`
+* **Result**: Frontend dev server starts normally at `http://localhost:5173` ✅
+
+#### Testing Verification Summary
+
+| Component | Endpoint / Test | Status |
+|---|---|---|
+| **Google OAuth** | `GET /api/auth/google` | ✅ Returns valid Supabase OAuth URL |
+| **Auth - Login (invalid)** | `POST /api/auth/login` (wrong creds) | ✅ Returns 401 + `"Invalid login credentials"` |
+| **Auth - /me (no token)** | `GET /api/auth/me` (no header) | ✅ Returns 401 + `"Access token is required"` |
+| **Frontend UI** | `http://localhost:5173` | ✅ HTTP 200, Vite serving React app |
+| **Backend Tests (Jest)** | 27 tests, 4 suites | ✅ All pass |
+| **Frontend Tests (Vitest)** | 3 tests, 1 suite | ✅ All pass |
+
+#### Files Modified This Session
+
+1. [`backend/config/db.js`](file:///C:/Users/chouh/OneDrive/Desktop/EAGER_MINDS/backend/config/db.js) — Added `ws` transport for Node.js 20 compatibility
+2. [`backend/services/authService.js`](file:///C:/Users/chouh/OneDrive/Desktop/EAGER_MINDS/backend/services/authService.js) — Proper `AppError` wrapping for Supabase errors; non-blocking email
+3. [`backend/app.js`](file:///C:/Users/chouh/OneDrive/Desktop/EAGER_MINDS/backend/app.js) — Enhanced centralized error handler to handle Supabase error shapes
+
+#### Next Steps
+- [ ] Deploy backend (e.g., Render / Railway) and frontend (e.g., Vercel) for a live URL
+- [ ] Set `FRONTEND_URL` env var to the deployed frontend URL so OAuth redirects properly in production
+- [ ] Add `RESEND_API_KEY` with a real key to enable live welcome emails
+- [ ] Consider adding an end-to-end (E2E) test using Playwright or Cypress
+

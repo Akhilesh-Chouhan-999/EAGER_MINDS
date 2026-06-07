@@ -4,9 +4,11 @@ const asyncHandler = require('../utils/asyncHandler')
 /**
  * Controller to route bookmark management CRUD operations.
  */
-// 1. Get Bookmarks list
+// 1. Get Bookmarks list (with optional pagination)
 exports.getBookmarks = asyncHandler(async (req, res) => {
-  const bookmarks = await bookmarkService.getBookmarks(req.token)
+  const page = req.query.page ? parseInt(req.query.page) : null
+  const limit = req.query.limit ? parseInt(req.query.limit) : null
+  const bookmarks = await bookmarkService.getBookmarks(req.token, page, limit)
   res.json(bookmarks)
 })
 

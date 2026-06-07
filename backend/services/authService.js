@@ -28,10 +28,13 @@ class AuthService {
       }
     })
 
-    if (error) throw error
+    if (error) throw new AppError(error.message, 400)
 
     if (data.user) {
-      await sendWelcomeEmail(email, cleanHandle)
+      // Fire welcome email but don't block signup if it fails
+      await sendWelcomeEmail(email, cleanHandle).catch((emailErr) => {
+        console.error('Welcome email failed (non-fatal):', emailErr.message)
+      })
     }
 
     return data
@@ -44,7 +47,7 @@ class AuthService {
       password
     })
 
-    if (error) throw error
+    if (error) throw new AppError(error.message, 401)
     return data
   }
 
@@ -68,7 +71,7 @@ class AuthService {
       }
     })
 
-    if (error) throw error
+    if (error) throw new AppError(error.message, 500)
     return data.url
   }
 }

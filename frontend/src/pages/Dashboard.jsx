@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { apiFetch } from '../config/api'
 import BookmarkManager from '../components/BookmarkManager'
+import LoadingSpinner from '../components/LoadingSpinner'
+import EmptyState from '../components/EmptyState'
 import { useAuth } from '../hooks/useAuth'
 
 export default function Dashboard() {
@@ -27,8 +29,11 @@ export default function Dashboard() {
 
     const fetchBookmarks = async () => {
       try {
-        const bookmarksData = await apiFetch('/api/bookmarks')
+        const response = await apiFetch('/api/bookmarks?limit=50')
+        // Handle both array and paginated response formats
+        const bookmarksData = Array.isArray(response) ? response : response.data || []
         setBookmarks(bookmarksData)
+        setError(null)
       } catch (err) {
         console.error(err)
         setError(err.message)
@@ -47,10 +52,13 @@ export default function Dashboard() {
   // Callback to refresh bookmarks list after mutations
   const refreshBookmarks = async () => {
     try {
-      const data = await apiFetch('/api/bookmarks')
-      setBookmarks(data)
+      const response = await apiFetch('/api/bookmarks?limit=50')
+      const bookmarksData = Array.isArray(response) ? response : response.data || []
+      setBookmarks(bookmarksData)
+      setError(null)
     } catch (err) {
       console.error('Failed to refresh bookmarks:', err)
+      setError(err.message)
     }
   }
 
@@ -59,7 +67,7 @@ export default function Dashboard() {
   if (isLoading) {
     return (
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <p style={{ color: 'var(--text-secondary)' }}>Loading your vault...</p>
+        <LoadingSpinner message="Loading your vault..." />
       </div>
     )
   }
@@ -122,17 +130,24 @@ export default function Dashboard() {
           </p>
         </div>
 
-        {error && !profile && (
+        {error && (
           <div className="alert alert-error" style={{ marginBottom: '24px' }}>
-            <span>Error: {error}</span>
+            <span>⚠️ {error}</span>
           </div>
         )}
 
-        {/* Bookmark Manager Component (Client CRUD) */}
-        <BookmarkManager 
-          bookmarks={bookmarks} 
-          onMutation={refreshBookmarks}
-        />
+        {bookmarks.length === 0 && !error ? (
+          <EmptyState
+            title="No bookmarks yet"
+            description="Start adding bookmarks to build your personal vault. Click the button below to add your first one."
+          />
+        ) : (
+          /* Bookmark Manager Component (Client CRUD) */
+          <BookmarkManager 
+            bookmarks={bookmarks} 
+            onMutation={refreshBookmarks}
+          />
+        )}
       </main>
     </div>
   )
