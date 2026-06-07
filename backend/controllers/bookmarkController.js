@@ -30,10 +30,6 @@ exports.getBookmarks = asyncHandler(async (req, res) => {
 exports.addBookmark = asyncHandler(async (req, res) => {
   const { title, url, isPublic } = req.body
 
-  if (!url) {
-    return res.status(400).json({ error: 'URL is required.' })
-  }
-
   const supabase = getSupabaseClient(req.token)
   
   const { data: { user }, error: authError } = await supabase.auth.getUser()
@@ -70,10 +66,6 @@ exports.addBookmark = asyncHandler(async (req, res) => {
 exports.updateBookmark = asyncHandler(async (req, res) => {
   const { title, url, isPublic } = req.body
   const { id } = req.params
-
-  if (!url) {
-    return res.status(400).json({ error: 'URL is required.' })
-  }
 
   const supabase = getSupabaseClient(req.token)
 

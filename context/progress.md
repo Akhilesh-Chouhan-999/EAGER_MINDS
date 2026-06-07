@@ -81,7 +81,16 @@ This file tracks all the steps, CLI prompts, database setups, and changes made d
 * **Step 8.9**: Audited and confirmed Vite production build runs successfully.
 * **Step 8.10**: Implemented functional Express route wrapping using `asyncHandler`, wrote a composable OG link parser (`metadataScraper.js`), upgraded the database schema with description and favicon columns, and updated the frontend card layouts to display these features beautifully.
 
-
-
-
-
+### Phase 9: Modularization & Testing (Refactoring Phase)
+* **Step 9.1**: Extracted validation rules into a dedicated validation middleware [backend/middlewares/validation.js](file:///C:/Users/chouh/OneDrive/Desktop/EAGER_MINDS/backend/middlewares/validation.js) to isolate controller actions from input validations.
+* **Step 9.2**: Registered validation middleware on signup, login, and bookmark CRUD routes.
+* **Step 9.3**: Cleaned up [backend/controllers/authController.js](file:///C:/Users/chouh/OneDrive/Desktop/EAGER_MINDS/backend/controllers/authController.js) and [backend/controllers/bookmarkController.js](file:///C:/Users/chouh/OneDrive/Desktop/EAGER_MINDS/backend/controllers/bookmarkController.js) by removing redundant inline validation checks.
+* **Step 9.4**: Configured Jest in `backend/package.json` for running the backend test suites.
+* **Step 9.5**: Created comprehensive unit and integration tests:
+  - [validation.test.js](file:///C:/Users/chouh/OneDrive/Desktop/EAGER_MINDS/backend/tests/validation.test.js) (validates credentials, handle formatting rules, and URL checks)
+  - [auth.test.js](file:///C:/Users/chouh/OneDrive/Desktop/EAGER_MINDS/backend/tests/auth.test.js) (tests auth routes with mocked Supabase client configurations)
+  - [bookmarks.test.js](file:///C:/Users/chouh/OneDrive/Desktop/EAGER_MINDS/backend/tests/bookmarks.test.js) (tests bookmark creations, updates, metadata extraction, and deletions)
+  - [profile.test.js](file:///C:/Users/chouh/OneDrive/Desktop/EAGER_MINDS/backend/tests/profile.test.js) (tests dynamic handle routes and reserved keyword guards)
+* **Step 9.6**: Installed Vitest in the frontend React application for testing.
+* **Step 9.7**: Created frontend API fetch test suite [api.test.js](file:///C:/Users/chouh/OneDrive/Desktop/EAGER_MINDS/frontend/src/config/api.test.js) with custom mock storage and fetch stubs.
+* **Step 9.8**: Ran and verified all test suites pass with 100% success on both sides.

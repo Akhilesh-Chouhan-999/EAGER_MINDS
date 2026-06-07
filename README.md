@@ -13,8 +13,9 @@ EAGER_MINDS/
 ├── backend/
 │   ├── config/              # Configuration (db.js setup)
 │   ├── controllers/         # Request handling logic (auth, bookmarks, profiles)
-│   ├── middlewares/         # Authorization check middlewares
+│   ├── middlewares/         # Auth and input validation middlewares
 │   ├── routes/              # Routing definitions
+│   ├── tests/               # Backend API integration and unit test suite
 │   ├── app.js               # Express app setups
 │   ├── index.js             # Express server entry point
 │   └── package.json
@@ -46,27 +47,56 @@ SUPABASE_ANON_KEY=your-supabase-anon-key
 RESEND_API_KEY=your-resend-api-key
 ```
 
-### 3. Start Backend API Server
+### 3. Setup Project Dependencies
+Run the unified setup command in the project root:
 ```bash
-cd backend
-npm install
-npm start
+npm run setup
 ```
-The server will boot on `http://localhost:5000`.
+This automatically installs package dependencies in both `backend` and `frontend` folders.
 
-### 4. Configure Frontend Environment
-Create a `.env.local` file in the `frontend/` directory with the API endpoint:
-```env
-VITE_API_BASE_URL=http://localhost:5000
-```
+### 4. Configure Environments
+- Create a `.env` file in the `backend/` directory:
+  ```env
+  PORT=5000
+  SUPABASE_URL=your-supabase-project-url
+  SUPABASE_ANON_KEY=your-supabase-anon-key
+  RESEND_API_KEY=your-resend-api-key
+  ```
+- Create a `.env.local` file in the `frontend/` directory:
+  ```env
+  VITE_API_BASE_URL=http://localhost:5000
+  ```
 
-### 5. Start Frontend Dev Server
+### 5. Start Development Servers
+Start both the backend server and the frontend client concurrently with a single command from the project root:
 ```bash
-cd frontend
-npm install
 npm run dev
 ```
-Open the local URL output by Vite (usually `http://localhost:5173`) in your browser.
+Open `http://localhost:5173` in your browser.
+
+### 6. Run the Test Suites
+
+To verify correctness, security, and validation logic, run the test suites directly from the project root:
+
+```bash
+npm test
+```
+
+This runs both:
+
+- **Backend Tests (Jest & Supertest)**:
+  ```bash
+  cd backend
+  npm test
+  ```
+  This runs all 26 integration/unit tests for validation, authentication, bookmarks CRUD, and public profiles.
+
+- **Frontend Tests (Vitest)**:
+  ```bash
+  cd frontend
+  npm test
+  ```
+  This runs the frontend unit tests checking API request/response handling and JWT integration.
 
 ---
 
@@ -80,4 +110,4 @@ During the migration to the frontend/backend architecture, we steering-corrected
 
 ## One Thing I'd Improve with More Time
 
-Implement **automatic link metadata extraction (scraping)** inside the Express backend. When saving a new link, the server would automatically fetch the HTML, extract OpenGraph metadata (title, image, description, favicon), and save it to the DB so the user doesn't have to fill in titles manually.
+Add **end-to-end (E2E) testing** using Cypress or Playwright. E2E tests would automate browser behaviors (such as user signup, email verification simulation, login, bookmarks management, dynamic handle navigation) to guarantee complete verification of frontend and backend integration.

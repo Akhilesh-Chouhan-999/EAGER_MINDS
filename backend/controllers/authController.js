@@ -2,27 +2,10 @@ const { Resend } = require('resend')
 const { getSupabaseClient } = require('../config/db')
 const asyncHandler = require('../utils/asyncHandler')
 
-// Pure helper function to validate handle format
-const validateHandle = (handle) => {
-  const clean = handle.trim().toLowerCase()
-  if (clean.length < 3) return 'Handle must be at least 3 characters long.'
-  if (!/^[a-z0-9_]+$/.test(clean)) return 'Handle can only contain lowercase letters, numbers, and underscores.'
-  return null
-}
-
 // 1. Signup Route
 exports.signup = asyncHandler(async (req, res) => {
   const { email, password, handle } = req.body
-
-  if (!email || !password || !handle) {
-    return res.status(400).json({ error: 'Email, password, and handle are required.' })
-  }
-
   const cleanHandle = handle.trim().toLowerCase()
-  const handleErr = validateHandle(cleanHandle)
-  if (handleErr) {
-    return res.status(400).json({ error: handleErr })
-  }
 
   const supabase = getSupabaseClient()
 
@@ -88,10 +71,6 @@ exports.signup = asyncHandler(async (req, res) => {
 // 2. Login Route
 exports.login = asyncHandler(async (req, res) => {
   const { email, password } = req.body
-
-  if (!email || !password) {
-    return res.status(400).json({ error: 'Email and password are required.' })
-  }
 
   const supabase = getSupabaseClient()
   const { data, error } = await supabase.auth.signInWithPassword({
