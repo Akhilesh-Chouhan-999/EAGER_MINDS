@@ -1,35 +1,9 @@
-import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import SearchProfile from '../components/SearchProfile'
-import { apiFetch } from '../config/api'
+import { useAuth } from '../hooks/useAuth'
 
 export default function Home() {
-  const [user, setUser] = useState(null)
-  const [profile, setProfile] = useState(null)
-  const [loading, setLoading] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return !!localStorage.getItem('token')
-    }
-    return false
-  })
-
-  useEffect(() => {
-    const token = localStorage.getItem('token')
-    if (!token) return
-
-    apiFetch('/api/auth/me')
-      .then((data) => {
-        setUser(data.user)
-        setProfile(data.profile)
-      })
-      .catch((err) => {
-        console.error('Failed to verify token:', err)
-        localStorage.removeItem('token')
-      })
-      .finally(() => {
-        setLoading(false)
-      })
-  }, [])
+  const { user, profile, loading } = useAuth()
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>

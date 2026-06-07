@@ -2,11 +2,12 @@ import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { apiFetch } from '../config/api'
 import BookmarkManager from '../components/BookmarkManager'
+import { useAuth } from '../hooks/useAuth'
 
 export default function Dashboard() {
-  const [profile, setProfile] = useState(null)
+  const { profile, loading: authLoading, logout } = useAuth()
   const [bookmarks, setBookmarks] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [loadingBookmarks, setLoadingBookmarks] = useState(true)
   const [error, setError] = useState(null)
   const navigate = useNavigate()
 
@@ -17,34 +18,30 @@ export default function Dashboard() {
       return
     }
 
-    const fetchData = async () => {
-      try {
-        // Fetch user profile
-        const meData = await apiFetch('/api/auth/me')
-        setProfile(meData.profile)
+    if (authLoading) return
 
-        // Fetch bookmarks
+    if (!profile) {
+      navigate('/login')
+      return
+    }
+
+    const fetchBookmarks = async () => {
+      try {
         const bookmarksData = await apiFetch('/api/bookmarks')
         setBookmarks(bookmarksData)
       } catch (err) {
         console.error(err)
         setError(err.message)
-        // If unauthorized, clear token and send to login
-        if (err.message.includes('token') || err.message.includes('auth') || err.message.includes('session')) {
-          localStorage.removeItem('token')
-          navigate('/login')
-        }
       } finally {
-        setLoading(false)
+        setLoadingBookmarks(false)
       }
     }
 
-    fetchData()
-  }, [navigate])
+    fetchBookmarks()
+  }, [profile, authLoading, navigate])
 
   const handleLogout = () => {
-    localStorage.removeItem('token')
-    navigate('/login')
+    logout(navigate)
   }
 
   // Callback to refresh bookmarks list after mutations
@@ -57,7 +54,9 @@ export default function Dashboard() {
     }
   }
 
-  if (loading) {
+  const isLoading = authLoading || loadingBookmarks
+
+  if (isLoading) {
     return (
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <p style={{ color: 'var(--text-secondary)' }}>Loading your vault...</p>

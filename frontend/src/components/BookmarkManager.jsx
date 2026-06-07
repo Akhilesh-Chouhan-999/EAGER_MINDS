@@ -1,5 +1,6 @@
 import { useState, useTransition } from 'react'
 import { apiFetch } from '../config/api'
+import { formatDate } from '../utils/date'
 
 export default function BookmarkManager({ bookmarks, onMutation }) {
   const [showAddForm, setShowAddForm] = useState(false)
@@ -419,6 +420,9 @@ export default function BookmarkManager({ bookmarks, onMutation }) {
                               {bookmark.description}
                             </p>
                           )}
+                          <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '6px', display: 'block' }}>
+                            Added on {formatDate(bookmark.created_at)}
+                          </span>
                         </div>
                       </div>
 

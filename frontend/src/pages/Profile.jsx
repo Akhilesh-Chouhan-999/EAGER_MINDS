@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { apiFetch } from '../config/api'
 import NotFound from './NotFound'
+import { formatDate } from '../utils/date'
 
 export default function Profile() {
   const { handle } = useParams()
@@ -170,6 +171,9 @@ export default function Profile() {
                       {bookmark.description}
                     </p>
                   )}
+                  <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '4px', display: 'block' }}>
+                    Shared on {formatDate(bookmark.created_at)}
+                  </span>
                 </div>
               </div>
 
