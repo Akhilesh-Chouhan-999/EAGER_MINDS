@@ -23,6 +23,9 @@ app.use((req, res) => {
 
 // Centralized Error Handling Middleware
 app.use((err, req, res, next) => {
+  if (err.isOperational) {
+    return res.status(err.statusCode).json({ error: err.message })
+  }
   console.error(err.stack)
   res.status(500).json({ error: 'Something went wrong on the server.' })
 })

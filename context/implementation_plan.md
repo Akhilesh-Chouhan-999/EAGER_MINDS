@@ -1,76 +1,94 @@
-# EagerMinds Bookmarks App — Implementation Plan
+# EagerMinds Bookmarks App — Implementation & Architecture Plan
 
-This document outlines the step-by-step phases to build the personal bookmarks application as requested by the interviewer.
-
----
-
-## Technical Stack
-- **Framework**: Next.js (App Router, TypeScript)
-- **Database & Auth**: Supabase (PostgreSQL with Row Level Security)
-- **Email Delivery**: Resend (for welcome emails upon sign-up)
-- **Deployment**: Vercel
-- **Styling**: Vanilla CSS (CSS Modules) to match the strict visual guidelines and provide a premium, bespoke design.
+This document outlines the architecture, patterns, and implementation stages of the personal bookmarks application.
 
 ---
 
-## Phase 1: Project Initialization & Git Setup
-1. **Initialize Git**: Verify or initialize git repository in `EAGER_MINDS`.
-2. **Next.js Setup**: Initialize a new Next.js project with App Router, TypeScript, and CSS Modules.
-3. **Setup Structure**: Create initial folder structures for components, lib/Supabase client, API routes, and styles.
-4. **Entire CLI Setup**: Check if Entire CLI is ready for recording agent sessions.
+## 1. Technical Stack & Architecture
 
-## Phase 2: Database Schema & Supabase Setup
-1. **Create Profiles Table**:
-   - `id` (uuid, references auth.users, primary key)
-   - `handle` (text, unique, not null)
-   - `email` (text, not null)
-   - `created_at` (timestamptz)
-2. **Create Bookmarks Table**:
-   - `id` (uuid, primary key)
-   - `user_id` (uuid, references profiles.id or auth.users, not null)
-   - `title` (text, not null)
-   - `url` (text, not null)
-   - `is_public` (boolean, default false)
-   - `created_at` (timestamptz)
-3. **Database Security (RLS)**:
-   - Enable Row Level Security (RLS) on both tables.
-   - **Profiles Policy**: Anyone can read handles/emails (needed for public profile), but only the owner can update their profile.
-   - **Bookmarks Policy**:
-     - *Read*: Users can read all bookmarks they own (`auth.uid() = user_id`) OR bookmarks that are marked public (`is_public = true`).
-     - *Insert/Update/Delete*: Users can only mutate bookmarks they own (`auth.uid() = user_id`).
-4. **Triggers**: Set up a trigger in PostgreSQL to automatically insert a profile row when a new user signs up in Supabase Auth.
+We have implemented a **decoupled client-server architecture**:
+* **Frontend**: React SPA (bootstrapped with Vite, utilizing Vanilla CSS modules for premium aesthetics and standard routing).
+* **Backend**: Node.js & Express REST API server.
+* **Database & Auth**: Supabase (PostgreSQL with Row Level Security (RLS) policies and triggers).
+* **Emails**: Resend (dispatches welcome emails upon signups).
+* **Local Workspace**: Integrated scripts configured in a root `package.json` to handle simultaneous installation, execution, and testing.
 
-## Phase 3: Authentication & Sign-Up Emails
-1. **Supabase Client Setup**: Configure the Supabase JS client for Next.js (SSR friendly using `@supabase/ssr`).
-2. **Auth Pages**:
-   - Login page (`/login`)
-   - Signup page (`/signup`) with email, password, and desired unique `@handle`.
-3. **Welcome Email Integration**:
-   - Create a Next.js route handler (`/api/auth/callback` or `/api/signup-welcome`) that triggers a welcome email using **Resend** when a new account is successfully verified or registered.
+---
 
-## Phase 4: Dashboard & Bookmark Management (Private Views)
-1. **Dashboard Route (`/dashboard`)**:
-   - Protect this route; redirect unauthenticated users to `/login`.
-   - List the user's bookmarks (both public and private).
-2. **Bookmark CRUD Operations**:
-   - Create bookmark modal/form (Title, URL, is_public checkbox).
-   - Edit bookmark form.
-   - Delete bookmark functionality with confirmation.
-   - Use Next.js Server Actions or client-side fetches with robust server-side authentication verification.
+## 2. Backend Architecture Design Patterns
 
-## Phase 5: Public Profiles (`/[handle]`)
-1. **Dynamic Handle Route (`/[handle]`)**:
-   - Resolve the profile by `@handle` from the database.
-   - If not found, show a styled 404 page.
-   - Fetch and display only the **public** bookmarks of that user.
-   - Anyone (even logged out) can view this page.
+To build a maintainable, clean code structure, the backend uses the **Repository-Service-Controller Pattern**:
 
-## Phase 6: Premium UI Design & Micro-animations
-1. **Design System**: Establish colors, typography, glassmorphism tokens, and gradients.
-2. **Interactive Polish**: Add hover animations, smooth list transitions, active state highlights, and responsive layouts.
-3. **SEO**: Add proper meta titles, descriptions, and OpenGraph tags.
+```mermaid
+graph TD
+    Client[Client Browser] --> Routes[Express Router]
+    Routes --> Middlewares[Auth & Validation Middlewares]
+    Middlewares --> Controllers[Controllers]
+    Controllers --> Services[Services Layer - Business Logic]
+    Services --> Repositories[Repositories Layer - DB Access]
+    Repositories --> Supabase[(Supabase Database)]
+    Services --> EmailService[Email Service - Resend]
+    Services --> Scraper[Metadata Scraper Utility]
+```
 
-## Phase 7: Deployment & Final Polish
-1. **Vercel Configuration**: Define environment variables (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `RESEND_API_KEY`).
-2. **README**: Document local execution, AI-agent correction log, and improvement notes.
-3. **Verification**: Confirm sessions are logged and synced correctly.
+### Layer Definitions:
+1. **Router Layer (`backend/routes/`)**: Receives the requests and maps endpoints to controllers.
+2. **Middleware Layer (`backend/middlewares/`)**: Intercepts requests for authentication checking (`auth.js`) and parameter validation (`validation.js`).
+3. **Controller Layer (`backend/controllers/`)**: Extract inputs (query/body/headers) and formats output using a unified `response.js` utility. Delegates business logic execution to the services.
+4. **Service Layer (`backend/services/`)**: Implements business calculations (such as handle formatting, scraping web details using `metadataScraper.js`, checking token details, calling email dispatchers).
+5. **Repository Layer (`backend/repositories/`)**: Encapsulates raw Supabase client queries. Prevents controllers or service files from writing database statements directly.
+6. **Centralized Error Handling**: Custom `AppError` class tracks status codes and marks errors as operational or server failures.
+
+---
+
+## 3. Database Schema & Supabase Configuration
+
+### Tables:
+1. **Profiles**:
+   * `id` (uuid, primary key, references `auth.users`)
+   * `handle` (text, unique, lowercase, min 3 characters)
+   * `email` (text, not null)
+   * `created_at` (timestamp with time zone)
+2. **Bookmarks**:
+   * `id` (uuid, primary key)
+   * `user_id` (uuid, references `profiles.id`, not null)
+   * `title` (text, not null)
+   * `url` (text, not null)
+   * `description` (text)
+   * `favicon_url` (text)
+   * `is_public` (boolean, default false)
+   * `created_at` (timestamp with time zone)
+
+### Row Level Security (RLS) Policies:
+* **Profiles**:
+  * Read (`SELECT`): Permitted publicly (needed to display dynamic profile handles).
+  * Mutate (`UPDATE`/`DELETE`): Permitted only if the authenticated user's ID matches the profile ID.
+* **Bookmarks**:
+  * Read (`SELECT`): Permitted if the bookmark is marked public (`is_public = true`) OR if the authenticated user owns it (`auth.uid() = user_id`).
+  * Mutate (`INSERT`/`UPDATE`/`DELETE`): Permitted only if the authenticated user owns the bookmark (`auth.uid() = user_id`).
+
+---
+
+## 4. Frontend Architecture Design Patterns
+
+The React SPA utilizes modern design paradigms:
+1. **Custom Hooks (`frontend/src/hooks/`)**:
+   * `useAuth`: Centralizes loading state, token reading from `localStorage`, session validation, and logout navigation.
+2. **Modular Utility Files (`frontend/src/utils/`)**:
+   * `date.js`: Exports human-readable formatting helpers.
+3. **Reusable Template Components (`frontend/src/components/`)**:
+   * `BookmarkManager`: Inline editing cards, status filter buttons (All, Public, Private), and real-time search filtering.
+   * `SearchProfile`: Debounced handle search bar on the Home page.
+4. **Aesthetics & Glassmorphism**: Global styles in `index.css` defining dynamic glow variables, layout resets, interactive states, and glass background cards.
+
+---
+
+## 5. Testing Strategy & Execution
+
+We verify all core mechanics using automated unit and integration tests:
+* **Backend**: Jest and Supertest.
+  * Mocks Supabase Auth/DB client connections to test route operations in isolation.
+  * 26 tests covering input validation rules, session endpoints, CRUD operations, dynamic handle checks, and reserved keyword protections.
+* **Frontend**: Vitest.
+  * Mocks the global `fetch` interface and browser `localStorage` to verify token insertion and request formatting.
+* **Execution**: Run all tests via the root-level workspace runner `npm test`.
