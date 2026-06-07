@@ -1,0 +1,43 @@
+{
+  "recommendations": [
+    // 🎨 THEMES
+    "zhuangtongfa.Material-theme",
+    "dracula-theme.theme-dracula",
+    "arcticicestudio.nord-visual-studio-code",
+    "GitHub.github-vscode-theme",
+    
+    // 🎯 ICONS
+    "PKief.material-icon-theme",
+    "vscode-icons-team.vscode-icons",
+    "file-icons.file-icons",
+    
+    // 💻 CODE QUALITY
+    "esbenp.prettier-vscode",
+    "dbaeumer.vscode-eslint",
+    "usernamehw.errorlens",
+    
+    // 🚀 DEVELOPMENT
+    "eamodio.gitlens",
+    "ritwickdey.LiveServer",
+    "rangav.vscode-thunder-client",
+    "humao.rest-client",
+    
+    // ⚛️ REACT/JS
+    "dsznajder.es7-react-js-snippets",
+    "xabikos.JavaScriptSnippets",
+    "redhat.vscode-yaml",
+    
+    // 🛠️ UTILITIES
+    "Gruntfuggly.todo-tree",
+    "aaron-bond.better-comments",
+    "streetsidesoftware.code-spell-checker",
+    "ms-vscode.Theme-ToneDefender",
+    
+    // 📦 DATABASE
+    "cweijan.vscode-postgresql-client2",
+    
+    // 🎪 UI ENHANCEMENTS
+    "ms-vscode.vscode-speech",
+    "ms-vscode.hexeditor"
+  ]
+}
