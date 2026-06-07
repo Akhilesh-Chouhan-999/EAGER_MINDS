@@ -29,6 +29,8 @@ create table public.bookmarks (
   user_id uuid references public.profiles(id) on delete cascade not null,
   title text not null,
   url text not null,
+  description text,
+  favicon_url text,
   is_public boolean default false not null,
   created_at timestamptz default timezone('utc'::text, now()) not null
 );
@@ -106,3 +108,13 @@ $$;
 create or replace trigger on_auth_user_created
   after insert on auth.users
   for each row execute procedure public.handle_new_user();
+
+-- ========================================================
+-- DATABASE MIGRATION NOTES (for existing databases):
+-- If you have already executed the schema, run these alter
+-- statements in your SQL editor to add the new metadata columns:
+--
+-- ALTER TABLE public.bookmarks ADD COLUMN description text;
+-- ALTER TABLE public.bookmarks ADD COLUMN favicon_url text;
+-- ========================================================
+

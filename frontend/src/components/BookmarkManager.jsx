@@ -303,34 +303,59 @@ export default function BookmarkManager({ bookmarks, onMutation }) {
                       </div>
                     </form>
                   ) : (
-                    // Display details
+                     // Display details
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
-                      <div style={{ flex: 1, minWidth: '250px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
-                          <h4 style={{ fontSize: '1.1rem', fontWeight: 600 }}>{bookmark.title}</h4>
-                          <span style={{ 
-                            fontSize: '0.7rem', 
-                            padding: '2px 8px', 
-                            borderRadius: '12px', 
-                            background: bookmark.is_public ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
-                            color: bookmark.is_public ? '#10b981' : '#ef4444',
-                            border: `1px solid ${bookmark.is_public ? 'rgba(16,185,129,0.2)' : 'rgba(239,68,68,0.2)'}`,
-                            fontWeight: 600,
-                          }}>
-                            {bookmark.is_public ? 'Public' : 'Private'}
-                          </span>
+                      <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start', flex: 1, minWidth: '280px' }}>
+                        {/* Website Favicon */}
+                        <img 
+                          src={bookmark.favicon_url || `https://www.google.com/s2/favicons?domain=${(() => {
+                            try { return new URL(bookmark.url).hostname } catch { return '' }
+                          })()}&sz=32`} 
+                          alt="" 
+                          onError={(e) => { e.target.style.display = 'none' }}
+                          style={{
+                            width: '26px',
+                            height: '26px',
+                            borderRadius: '6px',
+                            background: 'rgba(255, 255, 255, 0.05)',
+                            padding: '3px',
+                            border: '1px solid var(--border-color)',
+                            marginTop: '4px',
+                            flexShrink: 0
+                          }}
+                        />
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                            <h4 style={{ fontSize: '1.1rem', fontWeight: 600 }}>{bookmark.title}</h4>
+                            <span style={{ 
+                              fontSize: '0.7rem', 
+                              padding: '2px 8px', 
+                              borderRadius: '12px', 
+                              background: bookmark.is_public ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+                              color: bookmark.is_public ? '#10b981' : '#ef4444',
+                              border: `1px solid ${bookmark.is_public ? 'rgba(16,185,129,0.2)' : 'rgba(239,68,68,0.2)'}`,
+                              fontWeight: 600,
+                            }}>
+                              {bookmark.is_public ? 'Public' : 'Private'}
+                            </span>
+                          </div>
+                          <a 
+                            href={bookmark.url} 
+                            target="_blank" 
+                            rel="noopener noreferrer" 
+                            style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', display: 'inline-flex', alignItems: 'center', gap: '4px', width: 'fit-content' }}
+                          >
+                            {bookmark.url.replace(/^https?:\/\/(www\.)?/, '')}
+                            <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                            </svg>
+                          </a>
+                          {bookmark.description && (
+                            <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginTop: '4px', lineHeight: '1.4' }}>
+                              {bookmark.description}
+                            </p>
+                          )}
                         </div>
-                        <a 
-                          href={bookmark.url} 
-                          target="_blank" 
-                          rel="noopener noreferrer" 
-                          style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
-                        >
-                          {bookmark.url.replace(/^https?:\/\/(www\.)?/, '')}
-                          <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                          </svg>
-                        </a>
                       </div>
 
                       {/* Actions */}

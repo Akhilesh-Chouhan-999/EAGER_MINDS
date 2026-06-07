@@ -1,6 +1,8 @@
 const { getSupabaseClient } = require('../config/db')
+const asyncHandler = require('../utils/asyncHandler')
 
-exports.getPublicProfile = async (req, res) => {
+// 1. Get Public Profile (wrapped in asyncHandler)
+exports.getPublicProfile = asyncHandler(async (req, res) => {
   const handle = req.params.handle.toLowerCase()
 
   // Guard against reserved endpoints
@@ -9,33 +11,29 @@ exports.getPublicProfile = async (req, res) => {
     return res.status(404).json({ error: 'Profile not found.' })
   }
 
-  try {
-    const supabase = getSupabaseClient()
+  const supabase = getSupabaseClient()
 
-    // 1. Get profile matching handle
-    const { data: profile, error: profileError } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('handle', handle)
-      .maybeSingle()
+  // Fetch profile matching handle
+  const { data: profile, error: profileError } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('handle', handle)
+    .maybeSingle()
 
-    if (profileError) throw profileError
-    if (!profile) {
-      return res.status(404).json({ error: 'Profile not found.' })
-    }
-
-    // 2. Get public bookmarks only
-    const { data: bookmarks, error: bookmarksError } = await supabase
-      .from('bookmarks')
-      .select('*')
-      .eq('user_id', profile.id)
-      .eq('is_public', true)
-      .order('created_at', { ascending: false })
-
-    if (bookmarksError) throw bookmarksError
-
-    res.json({ profile, bookmarks })
-  } catch (error) {
-    res.status(400).json({ error: error.message })
+  if (profileError) throw profileError
+  if (!profile) {
+    return res.status(404).json({ error: 'Profile not found.' })
   }
-}
+
+  // Fetch public bookmarks only
+  const { data: bookmarks, error: bookmarksError } = await supabase
+    .from('bookmarks')
+    .select('*')
+    .eq('user_id', profile.id)
+    .eq('is_public', true)
+    .order('created_at', { ascending: false })
+
+  if (bookmarksError) throw bookmarksError
+
+  res.json({ profile, bookmarks })
+})

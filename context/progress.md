@@ -79,6 +79,8 @@ This file tracks all the steps, CLI prompts, database setups, and changes made d
   - `frontend/src/components/`: Re-created `BookmarkManager.jsx` (inline editing actions calling backend API) and `SearchProfile.jsx`.
 * **Step 8.8**: Resolved React 19 linter warnings on synchronous `setState` in `useEffect` in `Home.jsx` and `Profile.jsx`.
 * **Step 8.9**: Audited and confirmed Vite production build runs successfully.
+* **Step 8.10**: Implemented functional Express route wrapping using `asyncHandler`, wrote a composable OG link parser (`metadataScraper.js`), upgraded the database schema with description and favicon columns, and updated the frontend card layouts to display these features beautifully.
+
 
 
 

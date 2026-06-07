@@ -116,13 +116,38 @@ export default function Profile() {
                 transition: 'all 0.2s ease',
               }}
             >
-              <div>
-                <h3 style={{ fontSize: '1.05rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '4px' }}>
-                  {bookmark.title}
-                </h3>
-                <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                  {bookmark.url.replace(/^https?:\/\/(www\.)?/, '')}
-                </p>
+              <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
+                {/* Website Favicon */}
+                <img 
+                  src={bookmark.favicon_url || `https://www.google.com/s2/favicons?domain=${(() => {
+                    try { return new URL(bookmark.url).hostname } catch { return '' }
+                  })()}&sz=32`} 
+                  alt="" 
+                  onError={(e) => { e.target.style.display = 'none' }}
+                  style={{
+                    width: '26px',
+                    height: '26px',
+                    borderRadius: '6px',
+                    background: 'rgba(255, 255, 255, 0.05)',
+                    padding: '3px',
+                    border: '1px solid var(--border-color)',
+                    marginTop: '2px',
+                    flexShrink: 0
+                  }}
+                />
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                  <h3 style={{ fontSize: '1.05rem', fontWeight: 600, color: 'var(--text-primary)' }}>
+                    {bookmark.title}
+                  </h3>
+                  <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                    {bookmark.url.replace(/^https?:\/\/(www\.)?/, '')}
+                  </p>
+                  {bookmark.description && (
+                    <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginTop: '4px', lineHeight: '1.4' }}>
+                      {bookmark.description}
+                    </p>
+                  )}
+                </div>
               </div>
 
               <div style={{
