@@ -15,6 +15,7 @@ This file tracks all the steps, CLI prompts, database setups, and changes made d
 | **Phase 5** | Public Profiles (`/[handle]`) | ✅ Completed |
 | **Phase 6** | Premium UI Design & Micro-animations | ✅ Completed |
 | **Phase 7** | Deployment & Final Polish | ✅ Completed |
+| **Phase 8** | Migration to Frontend/Backend | ✅ Completed |
 
 ---
 
@@ -57,6 +58,28 @@ This file tracks all the steps, CLI prompts, database setups, and changes made d
 * **Step 7.2**: Fixed Next.js build prerender errors for dynamic segment `/[handle]` by setting `export const dynamic = 'force-dynamic'`.
 * **Step 7.3**: Generated a premium custom [README.md](file:///C:/Users/chouh/OneDrive/Desktop/EAGER_MINDS/README.md) with setup instructions, AI-agent correction log, and future improvement plans.
 * **Step 7.4**: Finalized local compilation checks with a successful `npm run build`.
+
+### Phase 8: Migration to Separate Frontend and Backend (React .jsx / Express .js)
+* **Step 8.1**: Read requirements in [requirement.txt](file:///C:/Users/chouh/OneDrive/Desktop/EAGER_MINDS/context/requirement.txt) and Gist to verify strict platform requirements (confirming Supabase + Resend + Vercel are indeed interviewer requirements).
+* **Step 8.2**: Cleared old Next.js files from root directory.
+* **Step 8.3**: Created `backend` service folder, configuring `package.json` and installing Express, Supabase client, and Resend.
+* **Step 8.4**: Structured the backend modularly:
+  - `backend/config/db.js`: Supabase connection client generator proxying tokens for Row-Level Security.
+  - `backend/middlewares/auth.js`: Authorization Bearer token validation middleware.
+  - `backend/controllers/`: Separated auth controller (`authController.js`), CRUD controller (`bookmarkController.js`), and public profile controller (`profileController.js`).
+  - `backend/routes/`: Custom modular routes mapping for `authRoutes.js`, `bookmarkRoutes.js`, and `profileRoutes.js`.
+  - `backend/app.js` & `backend/index.js`: Express bootstrapper, global cors registration, and port listener.
+* **Step 8.5**: Bootstrapped `frontend` React SPA using Vite (`react` template, which defaults to standard Javascript with `.jsx` files).
+* **Step 8.6**: Installed `react-router-dom` in `frontend` for client-side navigation.
+* **Step 8.7**: Configured the frontend client:
+  - `frontend/src/config/api.js`: Dynamic backend fetch client automatically attaching localStorage JWT keys in headers.
+  - `frontend/src/index.css`: Re-integrated custom dark layout aesthetics.
+  - `frontend/src/App.jsx`: Global router map (linking `/`, `/login`, `/signup`, `/dashboard`, and dynamic segment `/:handle`).
+  - `frontend/src/pages/`: Modular pages for `Home.jsx`, `Login.jsx`, `Signup.jsx`, `Dashboard.jsx`, `Profile.jsx`, and `NotFound.jsx`.
+  - `frontend/src/components/`: Re-created `BookmarkManager.jsx` (inline editing actions calling backend API) and `SearchProfile.jsx`.
+* **Step 8.8**: Resolved React 19 linter warnings on synchronous `setState` in `useEffect` in `Home.jsx` and `Profile.jsx`.
+* **Step 8.9**: Audited and confirmed Vite production build runs successfully.
+
 
 
 
