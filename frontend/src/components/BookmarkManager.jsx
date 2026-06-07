@@ -20,7 +20,26 @@ export default function BookmarkManager({ bookmarks, onMutation }) {
   // Copy success indicator state
   const [copiedId, setCopiedId] = useState(null)
 
+  // Search & Filter state
+  const [searchQuery, setSearchQuery] = useState('')
+  const [visibilityFilter, setVisibilityFilter] = useState('all')
+
   const [isPending, startTransition] = useTransition()
+
+  // Computed filtered list
+  const filteredBookmarks = bookmarks.filter((bookmark) => {
+    const matchesSearch = 
+      bookmark.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      bookmark.url.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (bookmark.description && bookmark.description.toLowerCase().includes(searchQuery.toLowerCase()))
+
+    const matchesVisibility = 
+      visibilityFilter === 'all' ||
+      (visibilityFilter === 'public' && bookmark.is_public) ||
+      (visibilityFilter === 'private' && !bookmark.is_public)
+
+    return matchesSearch && matchesVisibility
+  })
 
   // Toggle Add Form view
   const handleToggleAddForm = () => {
@@ -217,15 +236,60 @@ export default function BookmarkManager({ bookmarks, onMutation }) {
 
       {/* Bookmarks List */}
       <div>
-        <h3 style={{ fontSize: '1.25rem', marginBottom: '16px' }}>Your Saved Bookmarks ({bookmarks.length})</h3>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', marginBottom: '20px' }}>
+          <h3 style={{ fontSize: '1.25rem' }}>Your Saved Bookmarks ({filteredBookmarks.length})</h3>
+          
+          {bookmarks.length > 0 && (
+            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
+              {/* Search Bar */}
+              <input 
+                type="text" 
+                placeholder="Search bookmarks..." 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="form-input"
+                style={{ width: '220px', padding: '8px 12px', fontSize: '0.85rem', marginBottom: 0 }}
+              />
+              
+              {/* Visibility Filter Buttons */}
+              <div style={{ display: 'flex', background: 'rgba(255,255,255,0.03)', borderRadius: '8px', border: '1px solid var(--border-color)', padding: '2px' }}>
+                {['all', 'public', 'private'].map((filterType) => (
+                  <button
+                    key={filterType}
+                    type="button"
+                    onClick={() => setVisibilityFilter(filterType)}
+                    style={{
+                      background: visibilityFilter === filterType ? 'rgba(99, 102, 241, 0.15)' : 'transparent',
+                      border: 'none',
+                      color: visibilityFilter === filterType ? 'var(--accent-indigo)' : 'var(--text-secondary)',
+                      padding: '6px 12px',
+                      borderRadius: '6px',
+                      fontSize: '0.8rem',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease',
+                      textTransform: 'capitalize'
+                    }}
+                  >
+                    {filterType}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
         
         {bookmarks.length === 0 ? (
           <div className="glass-panel" style={{ padding: '40px', textAlign: 'center', color: 'var(--text-secondary)' }}>
             <p>You haven&apos;t saved any bookmarks yet. Click &ldquo;Add New Bookmark&rdquo; above to get started!</p>
           </div>
+        ) : filteredBookmarks.length === 0 ? (
+          <div className="glass-panel" style={{ padding: '40px', textAlign: 'center', color: 'var(--text-secondary)' }}>
+            <p>No bookmarks match your search or filter criteria.</p>
+          </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            {bookmarks.map((bookmark) => {
+            {filteredBookmarks.map((bookmark) => {
               const isEditing = editingId === bookmark.id
 
               return (

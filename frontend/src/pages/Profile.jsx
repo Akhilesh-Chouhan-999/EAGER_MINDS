@@ -9,12 +9,20 @@ export default function Profile() {
   const [bookmarks, setBookmarks] = useState([])
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+
+  const filteredBookmarks = bookmarks.filter((bookmark) => 
+    bookmark.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    bookmark.url.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (bookmark.description && bookmark.description.toLowerCase().includes(searchQuery.toLowerCase()))
+  )
 
   const [prevHandle, setPrevHandle] = useState(handle)
   if (handle !== prevHandle) {
     setPrevHandle(handle)
     setLoading(true)
     setNotFound(false)
+    setSearchQuery('')
   }
 
   useEffect(() => {
@@ -95,12 +103,27 @@ export default function Profile() {
         flexDirection: 'column',
         gap: '16px',
       }} className="fade-in">
+        {bookmarks && bookmarks.length > 0 && (
+          <input 
+            type="text" 
+            placeholder="Search public bookmarks..." 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="form-input"
+            style={{ width: '100%', padding: '10px 16px', fontSize: '0.9rem', marginBottom: '10px' }}
+          />
+        )}
+
         {!bookmarks || bookmarks.length === 0 ? (
           <div className="glass-panel" style={{ padding: '40px', textAlign: 'center', color: 'var(--text-secondary)' }}>
             <p>No public bookmarks shared yet.</p>
           </div>
+        ) : filteredBookmarks.length === 0 ? (
+          <div className="glass-panel" style={{ padding: '40px', textAlign: 'center', color: 'var(--text-secondary)' }}>
+            <p>No bookmarks match your search.</p>
+          </div>
         ) : (
-          bookmarks.map((bookmark) => (
+          filteredBookmarks.map((bookmark) => (
             <a 
               key={bookmark.id}
               href={bookmark.url}

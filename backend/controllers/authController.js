@@ -4,6 +4,7 @@ const asyncHandler = require('../utils/asyncHandler')
 
 // 1. Signup Route
 exports.signup = asyncHandler(async (req, res) => {
+  
   const { email, password, handle } = req.body
   const cleanHandle = handle.trim().toLowerCase()
 
