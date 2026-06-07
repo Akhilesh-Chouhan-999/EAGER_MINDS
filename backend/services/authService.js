@@ -23,7 +23,8 @@ class AuthService {
       options: {
         data: {
           handle: cleanHandle
-        }
+        },
+        emailRedirectTo: process.env.FRONTEND_URL || 'http://localhost:5173/dashboard'
       }
     })
 
@@ -56,6 +57,19 @@ class AuthService {
 
     const profile = await userRepository.findProfileById(user.id, token)
     return { user, profile }
+  }
+
+  async getGoogleOAuthUrl() {
+    const supabase = getSupabaseClient()
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: process.env.FRONTEND_URL || 'http://localhost:5173/dashboard'
+      }
+    })
+
+    if (error) throw error
+    return data.url
   }
 }
 

@@ -33,3 +33,9 @@ exports.getMe = asyncHandler(async (req, res) => {
   const data = await authService.getMe(req.token)
   return responseHelper.success(res, data)
 })
+
+// 4. Initiate Google Sign-In Route
+exports.googleLogin = asyncHandler(async (req, res) => {
+  const url = await authService.getGoogleOAuthUrl()
+  return responseHelper.success(res, { url })
+})
