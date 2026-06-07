@@ -1,0 +1,20 @@
+https://gist.github.com/prajapatimehul
+
+
+
+admin@eagerminds.in
+to me
+
+Hi Akhilesh,
+
+Thanks for the details. The next step is a short hands-on build task - full brief here: https://gist.github.com/prajapatimehul/2793c21d848fc3f451e336573976e6f7
+
+Please use an AI coding agent (Claude Code, Cursor, etc.) and record your sessions with Entire CLI - setup details are in the brief.
+
+Send back a live URL plus a GitHub repo, and a short note on where your agent got something wrong and how you fixed it. Take the time you need - there is no deadline. We will set up a short 15-minute meeting after the task.
+
+Questions? Just reply.
+
+Best,
+Mehul
+EagerMinds
