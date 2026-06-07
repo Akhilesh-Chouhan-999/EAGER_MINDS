@@ -94,3 +94,13 @@ This file tracks all the steps, CLI prompts, database setups, and changes made d
 * **Step 9.6**: Installed Vitest in the frontend React application for testing.
 * **Step 9.7**: Created frontend API fetch test suite [api.test.js](file:///C:/Users/chouh/OneDrive/Desktop/EAGER_MINDS/frontend/src/config/api.test.js) with custom mock storage and fetch stubs.
 * **Step 9.8**: Ran and verified all test suites pass with 100% success on both sides.
+
+### Phase 10: Configuration, Supabase CLI, and Repository-Service Pattern
+* **Step 10.1**: Configured `.env` file in `backend/` and `.env.local` file in `frontend/` using the live Supabase database credentials.
+* **Step 10.2**: Ran `supabase init` using the Supabase CLI, initializing the local Supabase configuration.
+* **Step 10.3**: Implemented Clean Architecture by refactoring controllers to use the **Repository Pattern** and **Service Layer Pattern**:
+  - Created `userRepository.js` and `bookmarkRepository.js` in `backend/repositories/` to isolate database transactions.
+  - Created `authService.js`, `bookmarkService.js`, and `profileService.js` in `backend/services/` to encapsulate business calculations.
+* **Step 10.4**: Implemented `AppError.js` in `backend/utils/` to format specific HTTP status codes operational error parameters and handle them in the Express centralized handler.
+* **Step 10.5**: Updated `context/implementation_plan.md` to detail the system design diagrams, database RLS policies, and directory patterns.
+* **Step 10.6**: Executed and verified both test suites pass with 100% success under the new service-repository architectures.
