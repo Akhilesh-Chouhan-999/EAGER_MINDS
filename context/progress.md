@@ -16,6 +16,7 @@ This file tracks all the steps, CLI prompts, database setups, and changes made d
 | **Phase 6** | Premium UI Design & Micro-animations | ✅ Completed |
 | **Phase 7** | Deployment & Final Polish | ✅ Completed |
 | **Phase 8** | Migration to Frontend/Backend | ✅ Completed |
+| **Phase 11**| Google OAuth, Email Confirmations & Workspace Startup | ✅ Completed |
 
 ---
 
@@ -104,3 +105,11 @@ This file tracks all the steps, CLI prompts, database setups, and changes made d
 * **Step 10.4**: Implemented `AppError.js` in `backend/utils/` to format specific HTTP status codes operational error parameters and handle them in the Express centralized handler.
 * **Step 10.5**: Updated `context/implementation_plan.md` to detail the system design diagrams, database RLS policies, and directory patterns.
 * **Step 10.6**: Executed and verified both test suites pass with 100% success under the new service-repository architectures.
+
+### Phase 11: Google OAuth, Email Confirmations & Workspace Startup
+* **Step 11.1**: Added beautiful, themed Google Sign-In and Sign-Up buttons on both the `Login.jsx` and `Signup.jsx` pages.
+* **Step 11.2**: Implemented instant frontend validation checks on signup (handle, email, password formats) matching the backend requirements.
+* **Step 11.3**: Implemented synchronous hash parsing in the frontend `useAuth` hook to capture, store, and clear the Supabase Google OAuth redirect token before component mount, avoiding redirection race conditions.
+* **Step 11.4**: Configured the backend redirect settings with the `FRONTEND_URL` environment parameter (falling back to localhost) in both the Google OAuth callback and sign-up email confirmation redirects.
+* **Step 11.5**: Created a root-level `package.json` with workspace commands (`npm run setup`, `npm run dev` with `concurrently`, and sequential `npm test`) so that the user can configure, start, and test the entire project with single workspace commands.
+* **Step 11.6**: Verified that all backend and frontend test suites pass successfully.
