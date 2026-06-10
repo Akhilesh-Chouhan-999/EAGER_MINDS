@@ -1,0 +1,31 @@
+services:
+  - type: web
+    name: eagerminds-backend
+    runtime: node
+    plan: free
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: NODE_ENV
+        value: production
+      - key: SUPABASE_URL
+        sync: false
+        placeholder: "Your Supabase Project URL"
+      - key: SUPABASE_ANON_KEY
+        sync: false
+        placeholder: "Your Supabase Anon Key"
+      - key: RESEND_API_KEY
+        sync: false
+        placeholder: "Your Resend API Key"
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+        placeholder: "Your Google Client ID"
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+        placeholder: "Your Google Client Secret"
+      - key: FRONTEND_URL
+        sync: false
+        placeholder: "Your Vercel Frontend URL"
