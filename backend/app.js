@@ -49,6 +49,24 @@ app.use('/api/auth', authRoutes)
 app.use('/api/bookmarks', bookmarkRoutes)
 app.use('/api/profiles', profileRoutes)
 
+// Serve frontend static assets in production
+const path = require('path')
+const frontendDistPath = path.join(__dirname, '../frontend/dist')
+app.use(express.static(frontendDistPath))
+
+// SPA routing fallback: serve index.html for client-side routing
+app.get('*', (req, res, next) => {
+  if (req.accepts('html') && !req.path.startsWith('/api/')) {
+    res.sendFile(path.join(frontendDistPath, 'index.html'), (err) => {
+      if (err) {
+        next()
+      }
+    })
+  } else {
+    next()
+  }
+})
+
 // Fallback Route Handler
 app.use((req, res) => {
   res.status(404).json({ error: 'Endpoint not found.' })

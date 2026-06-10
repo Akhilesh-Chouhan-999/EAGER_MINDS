@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: eagerminds-app
+    ports:
+      - "10000:10000"
+    env_file:
+      - ./backend/.env
+    environment:
+      - NODE_ENV=production
+      - PORT=10000
+      - FRONTEND_URL=http://localhost:10000
+    restart: always

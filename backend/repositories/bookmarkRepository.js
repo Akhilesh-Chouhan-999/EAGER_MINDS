@@ -7,9 +7,9 @@ class BookmarkRepository {
   async getBookmarks(token, page = null, limit = null) {
     const supabase = getSupabaseClient(token)
     let query = supabase
-      .from('bookmarks')
-      .select('*')
-      .order('created_at', { ascending: false })
+                        .from('bookmarks')
+                        .select('*')
+                        .order('created_at', { ascending: false })
     
     // Apply pagination only if both page and limit are provided
     if (page && limit) {
