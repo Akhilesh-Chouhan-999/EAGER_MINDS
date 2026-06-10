@@ -14,12 +14,14 @@ app.use(express.urlencoded({ limit: '1mb', extended: true }))
 // Security: CORS with specific origin (configurable)
 const allowedOrigins = [
   'http://localhost:5173',
+  'http://localhost:5174',
+  'http://localhost:5175',
   process.env.FRONTEND_URL
 ].filter(Boolean)
 
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
+    if (!origin || allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
       callback(null, true)
     } else {
       callback(new Error('CORS not allowed'))

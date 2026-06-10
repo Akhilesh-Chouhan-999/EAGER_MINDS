@@ -64,7 +64,7 @@ export default function Login() {
       }}>
         <div style={{ textAlign: 'center', marginBottom: '30px' }}>
           <h2 style={{ fontSize: '1.8rem', marginBottom: '8px' }}>
-            Welcome Back to <span className="gradient-text">Bookmark Hub</span>
+            Welcome Back to <span className="gradient-text">EagerMinds</span>
           </h2>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
             Please log in to manage your bookmarks.

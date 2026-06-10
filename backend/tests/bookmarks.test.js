@@ -64,7 +64,7 @@ describe('Bookmarks API Routes', () => {
   })
 
   describe('POST /api/bookmarks', () => {
-    it('should create a new bookmark with scraped metadata', async () => {
+    it('should create a new bookmark with scraped metadata and tags', async () => {
       const mockScrapedData = {
         title: 'Scraped Website Title',
         description: 'Scraped Website Description',
@@ -79,6 +79,7 @@ describe('Bookmarks API Routes', () => {
         url: 'https://site.com',
         description: mockScrapedData.description,
         favicon_url: mockScrapedData.faviconUrl,
+        tags: ['react', 'frontend'],
         is_public: false
       }
 
@@ -90,7 +91,7 @@ describe('Bookmarks API Routes', () => {
       const res = await request(app)
         .post('/api/bookmarks')
         .set('Authorization', 'Bearer valid_jwt')
-        .send({ url: 'site.com' }) // Validation checks formats and sanitizes it
+        .send({ url: 'site.com', tags: ['react', 'frontend'] })
 
       expect(res.status).toBe(200)
       expect(res.body.id).toBe('new_bookmark_id')
@@ -100,7 +101,8 @@ describe('Bookmarks API Routes', () => {
         expect.objectContaining({
           user_id: 'user_123',
           url: 'https://site.com',
-          description: mockScrapedData.description
+          description: mockScrapedData.description,
+          tags: ['react', 'frontend']
         })
       )
     })

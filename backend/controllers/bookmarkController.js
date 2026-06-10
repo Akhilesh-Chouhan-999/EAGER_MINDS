@@ -14,16 +14,16 @@ exports.getBookmarks = asyncHandler(async (req, res) => {
 
 // 2. Add New Bookmark
 exports.addBookmark = asyncHandler(async (req, res) => {
-  const { title, url, isPublic } = req.body
-  const bookmark = await bookmarkService.addBookmark(title, url, isPublic, req.token)
+  const { title, url, isPublic, tags } = req.body
+  const bookmark = await bookmarkService.addBookmark(title, url, isPublic, req.token, tags || [])
   res.json(bookmark)
 })
 
 // 3. Update Existing Bookmark Details
 exports.updateBookmark = asyncHandler(async (req, res) => {
-  const { title, url, isPublic } = req.body
+  const { title, url, isPublic, tags } = req.body
   const { id } = req.params
-  await bookmarkService.updateBookmark(id, title, url, isPublic, req.token)
+  await bookmarkService.updateBookmark(id, title, url, isPublic, req.token, tags || [])
   res.json({ success: true })
 })
 

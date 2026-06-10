@@ -6,7 +6,7 @@ setlocal enabledelayedexpansion
 cls
 echo.
 echo ╔════════════════════════════════════════════════════════════╗
-echo ║   EagerMinds Bookmarks - Setup & Testing Helper           ║
+echo ║   EagerMinds Bookmarks - Setup & Testing Helper            ║
 echo ╚════════════════════════════════════════════════════════════╝
 echo.
 
@@ -29,7 +29,7 @@ if exist "backend\.env" (
     for /f "tokens=1,2 delims==" %%a in ('type backend\.env') do (
         if "%%a"=="PORT" echo ✓ PORT: %%b
         if "%%a"=="SUPABASE_URL" echo ✓ SUPABASE_URL: %%b
-        if "%%a"=="SUPABASE_ANON_KEY" echo ✓ SUPABASE_ANON_KEY: [set]
+        if "%%a"=="SUPABASE_ANON_KEY" echo ✓ separate_ANON_KEY: [set]
         if "%%a"=="RESEND_API_KEY" echo ✓ RESEND_API_KEY: %%b
     )
 )

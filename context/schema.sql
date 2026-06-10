@@ -1,8 +1,10 @@
 -- Database Schema for EagerMinds Bookmarks Application
--- This script should be run in the Supabase SQL Editor.
+-- Run in: https://supabase.com/dashboard/project/ggcqzqnsqbjkzqdnqpaj/sql/new
+--
+-- ⚠️  If tables already exist, run context/migration.sql instead!
 
 -- 1. Create Profiles Table (extends auth.users)
-create table public.profiles (
+create table if not exists public.profiles (
   id uuid references auth.users on delete cascade primary key,
   handle text unique not null,
   email text not null,
@@ -15,22 +17,27 @@ create table public.profiles (
 alter table public.profiles enable row level security;
 
 -- Profiles Policies
-create policy "Public profiles are viewable by everyone" 
-  on public.profiles for select 
-  using (true);
+do $$ begin
+  create policy "Public profiles are viewable by everyone" 
+    on public.profiles for select 
+    using (true);
+exception when duplicate_object then null; end $$;
 
-create policy "Users can update their own profile" 
-  on public.profiles for update 
-  using (auth.uid() = id);
+do $$ begin
+  create policy "Users can update their own profile" 
+    on public.profiles for update 
+    using (auth.uid() = id);
+exception when duplicate_object then null; end $$;
 
 -- 2. Create Bookmarks Table
-create table public.bookmarks (
+create table if not exists public.bookmarks (
   id uuid default gen_random_uuid() primary key,
   user_id uuid references public.profiles(id) on delete cascade not null,
   title text not null,
   url text not null,
   description text,
   favicon_url text,
+  tags text[] default '{}' not null,
   is_public boolean default false not null,
   created_at timestamptz default timezone('utc'::text, now()) not null
 );
@@ -39,29 +46,38 @@ create table public.bookmarks (
 alter table public.bookmarks enable row level security;
 
 -- Bookmarks Policies
-create policy "Users can view their own bookmarks, or anyone can view public bookmarks" 
-  on public.bookmarks for select 
-  using (
-    auth.uid() = user_id 
-    or is_public = true
-  );
+do $$ begin
+  create policy "Users can view their own bookmarks, or anyone can view public bookmarks" 
+    on public.bookmarks for select 
+    using (
+      auth.uid() = user_id 
+      or is_public = true
+    );
+exception when duplicate_object then null; end $$;
 
-create policy "Users can insert their own bookmarks" 
-  on public.bookmarks for insert 
-  with check (auth.uid() = user_id);
+do $$ begin
+  create policy "Users can insert their own bookmarks" 
+    on public.bookmarks for insert 
+    with check (auth.uid() = user_id);
+exception when duplicate_object then null; end $$;
 
-create policy "Users can update their own bookmarks" 
-  on public.bookmarks for update 
-  using (auth.uid() = user_id)
-  with check (auth.uid() = user_id);
+do $$ begin
+  create policy "Users can update their own bookmarks" 
+    on public.bookmarks for update 
+    using (auth.uid() = user_id)
+    with check (auth.uid() = user_id);
+exception when duplicate_object then null; end $$;
 
--- Note: DELETE uses 'using' to check conditions, 'with check' does not apply to delete.
-create policy "Users can delete their own bookmarks" 
-  on public.bookmarks for delete 
-  using (auth.uid() = user_id);
+do $$ begin
+  create policy "Users can delete their own bookmarks" 
+    on public.bookmarks for delete 
+    using (auth.uid() = user_id);
+exception when duplicate_object then null; end $$;
+
+-- GIN index for efficient tag queries
+create index if not exists idx_bookmarks_tags on public.bookmarks using gin(tags);
 
 -- 3. Automatic Profile Creation Trigger on Signup
--- This function inserts a row into public.profiles whenever a new user signs up in auth.users.
 create or replace function public.handle_new_user()
 returns trigger
 language plpgsql
@@ -72,23 +88,19 @@ declare
   final_handle text;
   suffix_num integer := 1;
 begin
-  -- Get the desired handle from metadata (if supplied), otherwise default to email prefix
   raw_handle := coalesce(
     new.raw_user_meta_data->>'handle', 
     split_part(new.email, '@', 1)
   );
   
-  -- Clean the handle (lowercase, remove non-alphanumeric/underscores)
   raw_handle := lower(regexp_replace(raw_handle, '[^a-zA-Z0-9_]', '', 'g'));
   
-  -- Ensure handle is at least 3 characters
   if char_length(raw_handle) < 3 then
     raw_handle := raw_handle || 'usr';
   end if;
 
   final_handle := raw_handle;
 
-  -- Handle uniqueness conflicts by appending a number if necessary
   while exists(select 1 from public.profiles where handle = final_handle) loop
     final_handle := raw_handle || suffix_num::text;
     suffix_num := suffix_num + 1;
@@ -104,17 +116,6 @@ begin
 end;
 $$;
 
--- Create the trigger on auth.users
 create or replace trigger on_auth_user_created
   after insert on auth.users
   for each row execute procedure public.handle_new_user();
-
--- ========================================================
--- DATABASE MIGRATION NOTES (for existing databases):
--- If you have already executed the schema, run these alter
--- statements in your SQL editor to add the new metadata columns:
---
--- ALTER TABLE public.bookmarks ADD COLUMN description text;
--- ALTER TABLE public.bookmarks ADD COLUMN favicon_url text;
--- ========================================================
-

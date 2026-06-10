@@ -16,13 +16,13 @@ class UserRepository {
     return data
   }
 
-  async findProfileById(id, token) {
-    const supabase = getSupabaseClient(token)
+  async findProfileById(id) {
+    const supabase = getSupabaseClient()
     const { data, error } = await supabase
       .from('profiles')
       .select('*')
       .eq('id', id)
-      .single()
+      .maybeSingle()
 
     if (error) throw error
     return data

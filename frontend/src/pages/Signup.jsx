@@ -95,7 +95,7 @@ export default function Signup() {
       }}>
         <div style={{ textAlign: 'center', marginBottom: '30px' }}>
           <h2 style={{ fontSize: '1.8rem', marginBottom: '8px' }}>
-            Create your <span className="gradient-text">Bookmark Hub</span>
+            Create your <span className="gradient-text">EagerMinds</span>
           </h2>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
             Claim your custom @handle and secure your bookmarks.

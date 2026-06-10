@@ -16,7 +16,8 @@ describe('Auth API Routes', () => {
       auth: {
         signUp: jest.fn(),
         signInWithPassword: jest.fn(),
-        getUser: jest.fn()
+        getUser: jest.fn(),
+        signOut: jest.fn().mockResolvedValue({ error: null })
       },
       from: jest.fn().mockReturnThis(),
       select: jest.fn().mockReturnThis(),
@@ -127,8 +128,8 @@ describe('Auth API Routes', () => {
         error: null
       })
 
-      // Mock profile fetch matching the authenticated user ID
-      mockSupabase.single.mockResolvedValue({
+      // Mock profile fetch matching the authenticated user ID (uses maybeSingle internally)
+      mockSupabase.maybeSingle.mockResolvedValue({
         data: { id: 'user_123', handle: 'my_handle', email: 'test@example.com' },
         error: null
       })
@@ -156,4 +157,23 @@ describe('Auth API Routes', () => {
       expect(res.body.url).toBe('https://ggcqzqnsqbjkzqdnqpaj.supabase.co/auth/v1/authorize?provider=google')
     })
   })
+
+  describe('POST /api/auth/logout', () => {
+    it('should return 401 if Authorization header is missing', async () => {
+      const res = await request(app).post('/api/auth/logout')
+      expect(res.status).toBe(401)
+    })
+
+    it('should return success and sign out on valid token', async () => {
+      mockSupabase.auth.signOut = jest.fn().mockResolvedValue({ error: null })
+
+      const res = await request(app)
+        .post('/api/auth/logout')
+        .set('Authorization', 'Bearer valid_jwt')
+
+      expect(res.status).toBe(200)
+      expect(res.body.success).toBe(true)
+    })
+  })
 })
+

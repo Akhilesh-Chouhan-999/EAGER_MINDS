@@ -22,7 +22,7 @@ export default function Home() {
         zIndex: 50,
       }}>
         <Link to="/" style={{ fontSize: '1.4rem', fontWeight: 800, letterSpacing: '-0.03em' }}>
-          <span className="gradient-text">Bookmark Hub</span>
+          <span className="gradient-text">EagerMinds</span>
         </Link>
         <nav style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
           {loading ? (
@@ -80,7 +80,7 @@ export default function Home() {
           marginBottom: '20px',
           fontWeight: 900,
         }}>
-          Organize & Share Your <br/>
+          Organize &amp; Share Your <br/>
           <span className="gradient-text">Digital Bookmarks</span>
         </h1>
 
@@ -147,7 +147,7 @@ export default function Home() {
         fontSize: '0.85rem',
         color: 'var(--text-muted)',
       }}>
-        &copy; {new Date().getFullYear()} Bookmark Hub. Powered by Express & Supabase.
+        &copy; {new Date().getFullYear()} <span className="gradient-text" style={{ fontWeight: 700 }}>EagerMinds</span>. Powered by React &amp; Supabase.
       </footer>
     </div>
   )

@@ -1,4 +1,6 @@
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL !== undefined && import.meta.env.VITE_API_BASE_URL !== null
+  ? import.meta.env.VITE_API_BASE_URL
+  : (import.meta.env.PROD ? '' : 'http://localhost:3001')
 
 /**
  * Unified fetch wrapper that automatically appends JWT tokens

@@ -44,11 +44,22 @@ export function useAuth() {
       })
   }, [])
 
-  const logout = (navigateCallback) => {
-    localStorage.removeItem('token')
-    setUser(null)
-    setProfile(null)
-    if (navigateCallback) navigateCallback('/login')
+  /**
+   * Logs out the user: calls the server-side logout endpoint to invalidate
+   * the Supabase session, then clears local state.
+   */
+  const logout = async (navigateCallback) => {
+    try {
+      await apiFetch('/api/auth/logout', { method: 'POST' })
+    } catch (err) {
+      // Non-fatal: server may be unreachable; we still clear local state
+      console.error('Server logout failed (non-fatal):', err.message)
+    } finally {
+      localStorage.removeItem('token')
+      setUser(null)
+      setProfile(null)
+      if (navigateCallback) navigateCallback('/login')
+    }
   }
 
   return {

@@ -206,7 +206,7 @@ export default function Profile() {
           gap: '6px',
           fontWeight: 600,
         }}>
-          Powered by <span className="gradient-text" style={{ fontWeight: 800 }}>Bookmark Hub</span>
+          Powered by <span className="gradient-text" style={{ fontWeight: 800 }}>EagerMinds</span>
         </Link>
       </div>
 
