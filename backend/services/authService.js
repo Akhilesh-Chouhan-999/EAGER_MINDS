@@ -94,18 +94,7 @@ class AuthService {
     return { user, profile }
   }
 
-  async getGoogleOAuthUrl() {
-    const supabase = getSupabaseClient()
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: process.env.FRONTEND_URL || 'http://localhost:5173/dashboard'
-      }
-    })
 
-    if (error) throw new AppError(error.message, 500)
-    return data.url
-  }
 
   /**
    * Invalidates the user session in Supabase by signing out server-side.

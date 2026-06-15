@@ -34,12 +34,6 @@ exports.getMe = asyncHandler(async (req, res) => {
   return responseHelper.success(res, data)
 })
 
-// 4. Initiate Google Sign-In Route
-exports.googleLogin = asyncHandler(async (req, res) => {
-  const url = await authService.getGoogleOAuthUrl()
-  return responseHelper.success(res, { url })
-})
-
 // 5. Logout Route — invalidates the Supabase session server-side
 exports.logout = asyncHandler(async (req, res) => {
   await authService.logout(req.token)

@@ -144,19 +144,6 @@ describe('Auth API Routes', () => {
     })
   })
 
-  describe('GET /api/auth/google', () => {
-    it('should return Google OAuth redirect URL', async () => {
-      mockSupabase.auth.signInWithOAuth = jest.fn().mockResolvedValue({
-        data: { url: 'https://ggcqzqnsqbjkzqdnqpaj.supabase.co/auth/v1/authorize?provider=google' },
-        error: null
-      })
-
-      const res = await request(app).get('/api/auth/google')
-
-      expect(res.status).toBe(200)
-      expect(res.body.url).toBe('https://ggcqzqnsqbjkzqdnqpaj.supabase.co/auth/v1/authorize?provider=google')
-    })
-  })
 
   describe('POST /api/auth/logout', () => {
     it('should return 401 if Authorization header is missing', async () => {
