@@ -8,7 +8,7 @@ class BookmarkRepository {
     const supabase = getSupabaseClient(token)
     let query = supabase
                         .from('bookmarks')
-                        .select('*')
+                        .select('*', { count: 'exact' })
                         .order('created_at', { ascending: false })
     
     // Apply pagination only if both page and limit are provided
@@ -22,7 +22,7 @@ class BookmarkRepository {
       }
     }
 
-    const { data, error } = await query
+    const { data, error, count } = await query
 
     if (error) throw error
     
@@ -36,7 +36,7 @@ class BookmarkRepository {
       pagination: {
         page,
         limit,
-        total: (data || []).length
+        total: count !== undefined && count !== null ? count : (data || []).length
       }
     }
   }

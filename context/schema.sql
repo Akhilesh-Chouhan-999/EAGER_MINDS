@@ -77,6 +77,9 @@ exception when duplicate_object then null; end $$;
 -- GIN index for efficient tag queries
 create index if not exists idx_bookmarks_tags on public.bookmarks using gin(tags);
 
+-- Composite index for fast user dashboard and profile page queries sorted by date
+create index if not exists idx_bookmarks_user_id_created_at on public.bookmarks(user_id, created_at desc);
+
 -- 3. Automatic Profile Creation Trigger on Signup
 create or replace function public.handle_new_user()
 returns trigger

@@ -3,6 +3,8 @@ const { Resend } = require('resend')
 /**
  * Service handler to dispatch onboarding welcome emails using Resend.
  */
+let resendInstance = null
+
 const sendWelcomeEmail = async (email, handle) => {
   const resendApiKey = process.env.RESEND_API_KEY
   if (!resendApiKey) {
@@ -11,8 +13,10 @@ const sendWelcomeEmail = async (email, handle) => {
   }
 
   try {
-    const resend = new Resend(resendApiKey)
-    await resend.emails.send({
+    if (!resendInstance) {
+      resendInstance = new Resend(resendApiKey)
+    }
+    await resendInstance.emails.send({
       from: 'EagerMinds Bookmarks <onboarding@resend.dev>',
       to: email,
       subject: 'Welcome to EagerMinds Bookmarks!',

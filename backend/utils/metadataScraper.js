@@ -72,7 +72,35 @@ const scrapeMetadata = async (url) => {
       throw new Error(`Response status code: ${response.status}`)
     }
 
-    const html = await response.text()
+    let html = ''
+    if (response.body && typeof response.body.getReader === 'function') {
+      const reader = response.body.getReader()
+      const decoder = new TextDecoder('utf-8')
+      let done = false
+      const maxBytes = 128 * 1024 // 128KB limit
+      let bytesRead = 0
+
+      while (!done && bytesRead < maxBytes) {
+        const { value, done: doneReading } = await reader.read()
+        done = doneReading
+        if (value) {
+          bytesRead += value.length
+          html += decoder.decode(value, { stream: !done })
+          if (html.toLowerCase().includes('</head>')) {
+            break
+          }
+        }
+      }
+      if (!done) {
+        try {
+          await reader.cancel()
+        } catch (err) {
+          // ignore stream cancellation error
+        }
+      }
+    } else {
+      html = await response.text()
+    }
     const parsedTitle = extractMeta(html, 'og:title') || extractTitle(html)
     const description = extractMeta(html, 'og:description') || extractMeta(html, 'description') || ''
     const faviconUrl = extractFavicon(html, url) || `https://www.google.com/s2/favicons?domain=${new URL(url).hostname}&sz=32`
